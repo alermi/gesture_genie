@@ -3,6 +3,11 @@
  */
 
 
+let indexDown = false;
+let middleDown = false;
+let ringDown = false;
+let pinkyDown = false;
+
 tf.wasm.setWasmPath(
     `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${
         tf.wasm.version_wasm}/dist/tfjs-backend-wasm.wasm`);
@@ -30,15 +35,75 @@ function drawPoint(ctx, y, x, r) {
   ctx.fill();
 }
 
+function calculateFingerTrigger(jointCoordinates, endCoordinates){
+  if (endCoordinates[1] < jointCoordinates[1]){
+    return false;
+  }
+  else return true;
+}
+
 function drawKeypoints(ctx, keypoints) {
   const keypointsArray = keypoints;
   
   // output keypoints to console
   for (let i = 0; i < keypoints.length; i++) {
     const [x, y, z] = keypoints[i];
-    console.log(`Keypoint ${i}: [${x}, ${y}, ${z}]`);
+    // console.log(`Keypoint ${i}: [${x}, ${y}, ${z}]`);
   }
-        
+  
+  if(calculateFingerTrigger(keypoints[6], keypoints[8])){
+    // console.log("Index Finger Trigger!");
+    if(!indexDown){
+      buttonDown(1, true);
+      indexDown = true;
+    }
+  }
+  else{
+    if(indexDown){
+      buttonUp(1,true)
+      indexDown = false;
+    }
+  }
+  
+  if(calculateFingerTrigger(keypoints[10], keypoints[12])){
+    // console.log("Index Finger Trigger!");
+    if(!middleDown){
+      buttonDown(2, true);
+      middleDown = true;
+    }
+  }
+  else{
+    if(middleDown){
+      buttonUp(2,true)
+      middleDown = false;
+    }
+  }
+  if(calculateFingerTrigger(keypoints[14], keypoints[16])){
+    // console.log("Index Finger Trigger!");
+    if(!ringDown){
+      buttonDown(3, true);
+      ringDown = true;
+    }
+  }
+  else{
+    if(ringDown){
+      buttonUp(3,true)
+      ringDown = false;
+    }
+  }
+  if(calculateFingerTrigger(keypoints[18], keypoints[20])){
+    // console.log("Index Finger Trigger!");
+    if(!pinkyDown){
+      buttonDown(4, true);
+      pinkyDown = true;
+    }
+  }
+  else{
+    if(pinkyDown){
+      buttonUp(4,true)
+      pinkyDown = false;
+    }
+  }
   for (let i = 0; i < keypointsArray.length; i++) {
     const y = keypointsArray[i][0];
     const x = keypointsArray[i][1];
