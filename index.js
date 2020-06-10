@@ -8,6 +8,8 @@ let middleDown = false;
 let ringDown = false;
 let pinkyDown = false;
 
+let fingerPositions = [false, false, false, false];
+
 tf.wasm.setWasmPath(
     `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${
         tf.wasm.version_wasm}/dist/tfjs-backend-wasm.wasm`);
@@ -41,6 +43,55 @@ function calculateFingerTrigger(jointCoordinates, endCoordinates){
   }
   else return true;
 }
+function isThumbOpen(keypoints){
+  // console.log("Coordinate 1: " + keypoints[2][0]);
+  // console.log("Coordinate 2: " + keypoints[4][0]);
+  if(keypoints[2][0] > keypoints[4][0]){
+    if(isRightHand(keypoints)){
+      return false
+    }
+    else return true;
+  }
+  else{
+    if(isRightHand(keypoints)){
+      return true
+    }
+    else return false;
+  }
+}
+
+function handleFingerPosition(keypoints, jointCoordinates, endCoordinates, note){
+  if(!isRightHand(keypoints)){
+    note = 3 - note
+  }
+  if(calculateFingerTrigger(jointCoordinates, endCoordinates)){
+    // console.log("Index Finger Trigger!");
+    fingerPositions[note]
+    if(!fingerPositions[note]){
+      buttonDown(note, true);
+      if(isThumbOpen(keypoints)){
+        buttonDown(note + 4, true);
+      }
+      fingerPositions[note] = true;
+    }
+  }
+  else{
+    if(fingerPositions[note]){
+      buttonUp(note,true)
+      buttonUp(note + 4, true);
+      fingerPositions[note] = false;
+    }
+  }
+}
+
+function isRightHand(keypoints){
+  if(keypoints[19][0] < keypoints[2][0]){
+    return true;
+  }
+  else {
+    return false;
+  }
+}
 
 function drawKeypoints(ctx, keypoints) {
   const keypointsArray = keypoints;
@@ -51,59 +102,15 @@ function drawKeypoints(ctx, keypoints) {
     // console.log(`Keypoint ${i}: [${x}, ${y}, ${z}]`);
   }
   
-  if(calculateFingerTrigger(keypoints[6], keypoints[8])){
-    // console.log("Index Finger Trigger!");
-    if(!indexDown){
-      buttonDown(1, true);
-      indexDown = true;
-    }
+  handleFingerPosition(keypoints, keypoints[6], keypoints[8], 0)
+  handleFingerPosition(keypoints, keypoints[10], keypoints[12], 1)
+  handleFingerPosition(keypoints, keypoints[14], keypoints[16], 2)
+  handleFingerPosition(keypoints, keypoints[18], keypoints[20], 3)
+  if(isThumbOpen(keypoints)){
+    console.log("Thumb Open");
   }
-  else{
-    if(indexDown){
-      buttonUp(1,true)
-      indexDown = false;
-    }
-  }
-  
-  if(calculateFingerTrigger(keypoints[10], keypoints[12])){
-    // console.log("Index Finger Trigger!");
-    if(!middleDown){
-      buttonDown(2, true);
-      middleDown = true;
-    }
-  }
-  else{
-    if(middleDown){
-      buttonUp(2,true)
-      middleDown = false;
-    }
-  }
-  if(calculateFingerTrigger(keypoints[14], keypoints[16])){
-    // console.log("Index Finger Trigger!");
-    if(!ringDown){
-      buttonDown(3, true);
-      ringDown = true;
-    }
-  }
-  else{
-    if(ringDown){
-      buttonUp(3,true)
-      ringDown = false;
-    }
-  }
-  if(calculateFingerTrigger(keypoints[18], keypoints[20])){
-    // console.log("Index Finger Trigger!");
-    if(!pinkyDown){
-      buttonDown(4, true);
-      pinkyDown = true;
-    }
-  }
-  else{
-    if(pinkyDown){
-      buttonUp(4,true)
-      pinkyDown = false;
-    }
-  }
+  else console.log("Thumb Closed");
+
   for (let i = 0; i < keypointsArray.length; i++) {
     const y = keypointsArray[i][0];
     const x = keypointsArray[i][1];
