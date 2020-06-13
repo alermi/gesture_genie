@@ -20,8 +20,6 @@ Your Project
 
 ### ← script.js
 
-### ← index.js
-
 ### ← assets
 
 

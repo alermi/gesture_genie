@@ -4,11 +4,11 @@
 * Authors: Ani Lermi, Rebecca Kreitinger, Divyank Rahoria
 *    
 *   Gesture Genie is a version of Piano Genie where notes are controlled
-*   by hand movements and position rather than buttons. The goal is to 
+*   by hand movements rather than buttons. The goal is to 
 *   create a more natural control for playing the piano
 * 
-*   This file contains the code for Piano Genie as well as getting the 
-*   handpose. Each finger triggers a button event. This gives the user 
+*   This file contains the code for Piano Genie as well as the Handpose.
+*   Each finger triggers a button event. This gives the user 
 *   the option to use the gestures or the buttons. 
 ************************************************************************/
 
@@ -203,7 +203,7 @@ function buttonDown(button, fromKeyDown) {
 
   // Hear it.
   player.playNoteDown(pitch, button);
-  
+
   // See it.
   const rect = piano.highlightNote(note, button);
   
@@ -401,6 +401,7 @@ function handleFingerPosition(keypoints, jointCoordinates, endCoordinates, note)
   if(calculateFingerTrigger(jointCoordinates, endCoordinates)){
     // console.log("Index Finger Trigger!");
     fingerPositions[note]
+
     if(!fingerPositions[note]){
       buttonDown(note, true);
       if(isThumbOpen(keypoints)){
@@ -510,6 +511,7 @@ const main =
     async () => {
   await tf.setBackend(state.backend);
   model = await handpose.load();
+  
   let video;
 
   try {
@@ -563,7 +565,9 @@ const landmarksRealTime = async (video) => {
     ctx.drawImage(
         video, 0, 0, videoWidth, videoHeight, 0, 0, canvas.width,
         canvas.height);
+    
     const predictions = await model.estimateHands(video);
+
     if (predictions.length > 0) {
       const result = predictions[0].landmarks;
       drawKeypoints(ctx, result, predictions[0].annotations);
